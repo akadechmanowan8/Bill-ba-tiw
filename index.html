@@ -91,9 +91,44 @@ body{background:radial-gradient(900px 500px at 85% -10%,rgba(249,199,79,.16),tra
 .toast.show{opacity:1;transform:translate(-50%,0)}
 .foot{display:flex;gap:8px;justify-content:space-between;align-items:center;flex-wrap:wrap;padding-bottom:28px;font-size:11px;color:var(--muted)}
 @media print{.form,.x,.foot .btn{display:none}.cols{overflow:visible;flex-wrap:wrap}}
+
+.form.editing{border-color:var(--gold);box-shadow:0 0 0 2px color-mix(in srgb,var(--gold) 35%,transparent)}
+.edit-banner{display:none;align-items:center;justify-content:space-between;gap:8px;background:color-mix(in srgb,var(--gold) 18%,transparent);border-radius:10px;padding:7px 12px;margin-bottom:10px;font-size:12px;color:var(--gold)}
+.form.editing .edit-banner{display:flex}
+.qty{display:flex;align-items:stretch;gap:6px}
+.qty input{text-align:center;min-width:0}
+.step{width:38px;flex:none;border:1px solid var(--dim);background:var(--surface);color:var(--text);border-radius:9px;font-size:18px;font-weight:600;cursor:pointer}
+.step:active{transform:scale(.94)}
+.acts{display:flex;gap:2px;flex:none}
+.x.ed:hover{color:var(--gold);background:color-mix(in srgb,var(--gold) 14%,transparent)}
+details.mgr{background:var(--panel);border:1px solid var(--border);border-radius:16px;padding:0 15px;margin-top:14px;backdrop-filter:blur(8px)}
+details.mgr summary{cursor:pointer;padding:13px 0;font-size:14px;font-weight:700;color:var(--gold);list-style:none}
+details.mgr summary::-webkit-details-marker{display:none}
+details.mgr[open] summary{border-bottom:1px solid var(--border);margin-bottom:10px}
+.mrow{display:grid;grid-template-columns:1fr 92px 40px;gap:8px;margin-bottom:8px;align-items:center}
+.mrow input{background:var(--surface);border:1px solid var(--dim);border-radius:9px;color:var(--text);font-family:var(--font-th);font-size:14px;padding:8px 10px;outline:none;width:100%;min-width:0}
+.mrow input.p{font-family:var(--font-mono);text-align:right}
+.mrow input:focus{border-color:var(--gold)}
+.mrow .x{font-size:15px;padding:6px}
+.mnote{font-size:11px;color:var(--muted);padding:2px 0 14px}
+.addrow{display:grid;grid-template-columns:1fr 92px auto;gap:8px;margin:12px 0 4px;align-items:center}
+.addrow input{background:var(--surface);border:1px dashed var(--gold);border-radius:9px;color:var(--text);font-family:var(--font-th);font-size:14px;padding:8px 10px;outline:none;width:100%;min-width:0}
+.fab{position:fixed;right:16px;bottom:calc(18px + env(safe-area-inset-bottom,0px));width:56px;height:56px;border-radius:50%;border:none;cursor:pointer;font-size:30px;line-height:1;background:linear-gradient(135deg,var(--gold2),var(--gold));color:#2b1400;box-shadow:0 8px 22px rgba(243,114,44,.5);z-index:40}
+.fab:active{transform:scale(.93)}
+@media print{.fab,details.mgr{display:none}}
+body.viewer .owner-only{display:none !important}
+.modetag{font-size:11px;padding:3px 10px;border-radius:99px;border:1px solid var(--border);color:var(--muted)}
+body:not(.viewer) .modetag{color:var(--green);border-color:var(--green)}
+.ov{position:fixed;inset:0;background:rgba(5,3,15,.62);display:none;align-items:center;justify-content:center;padding:20px;z-index:80;backdrop-filter:blur(4px)}
+.ov.open{display:flex}
+.dlg{background:var(--bg1);border:1px solid var(--border);border-radius:18px;padding:20px;width:100%;max-width:340px;box-shadow:0 20px 60px rgba(0,0,0,.5)}
+.dlg h3{font-size:16px;color:var(--gold);margin-bottom:4px}
+.dlg p{font-size:12px;color:var(--muted);margin-bottom:12px}
+.dlg .fld{margin-bottom:10px}
+.dlg .row{justify-content:flex-end;margin-top:6px}
 </style>
 </head>
-<body>
+<body class="viewer">
 <div class="wrap">
   <div class="top">
     <div class="logo">🍶</div>
@@ -101,40 +136,65 @@ body{background:radial-gradient(900px 500px at 85% -10%,rgba(249,199,79,.16),tra
       <h1>บิลค่าเหล้า ร้านป้าติ๋ว</h1>
       <p>เหล้าหงส์ทอง · โซดา · แยกตามคน</p>
     </div>
-    <span class="badge" id="monthBadge">พ.ย. 2569</span>
+    <span class="modetag" id="modeTag">🔒 ดูอย่างเดียว</span>
+    <span class="badge" id="monthBadge" style="margin-left:0">พ.ย. 2569</span>
   </div>
 
   <div class="price" id="priceTags"></div>
 
   <div class="cards">
     <div class="card big"><div class="lbl">ยอดรวมทุกคน (บาท)</div><div class="val gold" id="s-total">0</div><div class="sub" id="s-upd">ยังไม่มีการบันทึก</div></div>
-    <div class="card"><div class="lbl">เหล้าทั้งหมด (ขวด)</div><div class="val" id="s-qty">0</div><div class="sub" id="s-detail">—</div></div>
+    <div class="card"><div class="lbl">จำนวนทั้งหมด (ชิ้น/ขวด)</div><div class="val" id="s-qty">0</div><div class="sub" id="s-detail">—</div></div>
     <div class="card"><div class="lbl">จำนวนวันที่มีบิล</div><div class="val" id="s-days">0</div><div class="sub">วัน</div></div>
   </div>
 
-  <div class="form">
-    <h2>＋ เพิ่มรายการ</h2>
+  <div class="form owner-only" id="formBox">
+    <h2 id="formTitle">＋ เพิ่มรายการ</h2>
+    <div class="edit-banner"><span id="editInfo"></span><button class="btn btn-ghost" style="padding:4px 12px" onclick="cancelEdit()">ยกเลิก</button></div>
     <div class="row">
       <div class="fld"><label>วันที่</label><input type="date" id="f-date"></div>
       <div class="fld"><label>ใคร</label><select id="f-person"></select></div>
     </div>
     <div class="items" id="itemInputs"></div>
     <div class="row" style="margin-top:12px;justify-content:flex-end;align-items:center">
-      <button class="btn btn-primary" onclick="addEntry()">💾 บันทึก</button>
+      <button class="btn btn-ghost" id="copyBtn" style="display:none;margin-right:8px" onclick="saveEntry(true)">＋ บันทึกเป็นบิลใหม่</button>
+      <button class="btn btn-primary" id="saveBtn" onclick="saveEntry()">💾 บันทึก</button>
     </div>
   </div>
 
   <div class="cols" id="cols"></div>
 
+  <details class="mgr owner-only" id="itemMgr">
+    <summary>🛒 จัดการสินค้า / ราคา</summary>
+    <div id="mgrList"></div>
+    <div class="addrow">
+      <input id="ni-name" placeholder="ชื่อสินค้าใหม่ เช่น น้ำแข็ง">
+      <input id="ni-price" type="number" inputmode="decimal" min="0" placeholder="ราคา">
+      <button class="btn btn-primary" onclick="addItem()">＋ เพิ่ม</button>
+    </div>
+    <div class="mnote">แก้ชื่อ/ราคา มีผลกับรายการที่บันทึกใหม่เท่านั้น บิลเก่าจะไม่เปลี่ยนราคา</div>
+  </details>
+
   <div class="foot">
     <span id="saveNote">กำลังโหลดข้อมูล…</span>
-    <span style="display:flex;gap:8px">
+    <span style="display:flex;gap:8px;flex-wrap:wrap">
       <button class="btn btn-ghost" onclick="exportData()">⬇ สำรองข้อมูล</button>
-      <button class="btn btn-ghost" onclick="document.getElementById('imp').click()">⬆ นำเข้า</button>
+      <button class="btn btn-ghost owner-only" onclick="document.getElementById('imp').click()">⬆ นำเข้า</button>
       <input type="file" id="imp" accept="application/json,.json" hidden onchange="importData(this)">
       <button class="btn btn-ghost" onclick="window.print()">🖨 พิมพ์</button>
-      <button class="btn btn-ghost" onclick="resetAll()">ล้างทั้งหมด</button>
+      <button class="btn btn-ghost owner-only" onclick="resetAll()">ล้างทั้งหมด</button>
+      <button class="btn btn-ghost" id="loginBtn" onclick="authBtn()">🔑 เข้าสู่ระบบ</button>
     </span>
+  </div>
+</div>
+<button class="fab owner-only" onclick="gotoForm()" aria-label="เพิ่มรายการ">＋</button>
+<div class="ov" id="loginOv">
+  <div class="dlg">
+    <h3>🔑 เข้าสู่ระบบเจ้าของ</h3>
+    <p>เฉพาะเจ้าของเท่านั้นที่แก้ไขข้อมูลได้ คนอื่นดูได้อย่างเดียว</p>
+    <div class="fld"><label>อีเมล</label><input type="email" id="lg-email" autocomplete="username"></div>
+    <div class="fld"><label>รหัสผ่าน</label><input type="password" id="lg-pw" autocomplete="current-password" onkeydown="if(event.key==='Enter')doLogin()"></div>
+    <div class="row"><button class="btn btn-ghost" onclick="closeLogin()">ยกเลิก</button><button class="btn btn-primary" onclick="doLogin()">เข้าสู่ระบบ</button></div>
   </div>
 </div>
 <div class="toast" id="toast"></div>
@@ -146,7 +206,7 @@ const PEOPLE = [
   {n:'พี่ตาม',  c:'#5fd39a', e:'🍺'},
   {n:'ปอนด์',   c:'#63b3ed', e:'🥂'}
 ];
-const ITEMS = [
+const DEFAULT_ITEMS = [
   {k:'bearn', name:'หงส์ทอง แบร์น', price:170},
   {k:'liter', name:'หงส์ทอง ลิตร',  price:410},
   {k:'round', name:'หงส์ทอง กลม',   price:300},
@@ -155,93 +215,282 @@ const ITEMS = [
 const MON = ['ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.','ก.ค.','ส.ค.','ก.ย.','ต.ค.','พ.ย.','ธ.ค.'];
 const KEY = 'bill-pa-tiw-v2';
 
-let data = [];       // รายการบิลทั้งหมด (เริ่มว่าง)
-let updated = null;  // เวลาที่อัปเดตล่าสุด (ISO)
+let dirty = false, online = false;   // dirty = มีข้อมูลที่ยังส่งขึ้นเซิร์ฟเวอร์ไม่สำเร็จ
+let items = DEFAULT_ITEMS.map(i=>({...i}));
+let data = [];       // บิล: {id,date,person,saved,lines:[{k,n,p,q}]}
+let updated = null;
+let editId = null;   // กำลังแก้ไขบิลไหน
+let formVals = {};   // จำนวนที่กรอกในฟอร์ม {k: qty}
 
-// 1) โหลดจากเครื่องก่อน เพื่อให้เห็นข้อมูลทันที
-try { const r = JSON.parse(localStorage.getItem(KEY) || 'null'); if (r) { data = r.entries || []; updated = r.updated || null; } } catch(e){}
-function saveLocal(){ try{ localStorage.setItem(KEY, JSON.stringify({entries:data, updated})); }catch(e){} }
+// แปลงบิลรูปแบบเก่า (q:{bearn:..}) เป็นแบบ lines
+function norm(list){
+  return (list||[]).map(e=>{
+    if(Array.isArray(e.lines)) return e;
+    const lines = DEFAULT_ITEMS.filter(i=>(e.q&&e.q[i.k])>0).map(i=>({k:i.k,n:i.name,p:i.price,q:e.q[i.k]}));
+    return {id:e.id,date:e.date,person:e.person,saved:e.saved,lines};
+  });
+}
+try { const r = JSON.parse(localStorage.getItem(KEY) || 'null');
+  if (r) { data = norm(r.entries); updated = r.updated || null; dirty = !!r.dirty; if(Array.isArray(r.items)&&r.items.length) items = r.items; } } catch(e){}
+function saveLocal(){ try{ localStorage.setItem(KEY, JSON.stringify({entries:data, items, updated, dirty})); }catch(e){} }
 
 // ===== Firebase Realtime Database (REST) =====
-// ใส่ URL ฐานข้อมูลของคุณตรงนี้ เช่น 'https://ชื่อโปรเจกต์-default-rtdb.asia-southeast1.firebasedatabase.app'
 const DB_URL = 'https://bill-ba-tiw-default-rtdb.asia-southeast1.firebasedatabase.app';
 const NODE = 'bill_pa_tiw';
-let dirty = false, online = false;
 const endpoint = () => DB_URL.replace(/\/+$/,'') + '/' + NODE + '.json';
 
+function mergeRemote(j){
+  // รวมข้อมูลจากเซิร์ฟเวอร์เข้าเครื่อง โดยไม่ทิ้งของที่ยังไม่ได้ส่ง
+  if(!j) return;
+  const ids = new Set(data.map(e=>e.id));
+  norm(Array.isArray(j.entries)?j.entries:[]).forEach(e=>{ if(!ids.has(e.id)) data.push(e); });
+  if(Array.isArray(j.items)){ const ks = new Set(items.map(i=>i.k)); j.items.forEach(i=>{ if(!ks.has(i.k)) items.push(i); }); }
+}
 async function pull(){
   if(!DB_URL) return;
   try{
-    if(dirty){ await push(); return; }
     const r = await fetch(endpoint(), {cache:'no-store'});
     if(!r.ok) throw new Error(r.status);
     const j = await r.json();
     online = true;
-    if(j && Array.isArray(j.entries)){ data = j.entries; updated = j.updated || null; saveLocal(); render(); }
-    else if(j && j.updated && !j.entries){ data = []; updated = j.updated; saveLocal(); render(); }
-    else if(data.length){ await push(); }
+    if(dirty && !session && REQUIRE_LOGIN) dirty = false;   // ไม่มีสิทธิ์แก้ไข จึงไม่เก็บค้างไว้
+    if(dirty){ mergeRemote(j); updated = new Date().toISOString(); saveLocal(); await push(true); render(); renderPrices(); setNote(); return; }
+    if(j){
+      if(Array.isArray(j.entries)) data = norm(j.entries); else if(j.updated) data = [];
+      if(Array.isArray(j.items) && j.items.length) items = j.items;
+      updated = j.updated || updated;
+      saveLocal(); render(); renderPrices();
+      if(!document.getElementById('itemMgr').contains(document.activeElement)) renderMgr();
+    } else if(data.length){ await push(true); }
   }catch(e){ online = false; }
   setNote();
 }
-async function push(){
+async function push(silent){
   if(!DB_URL) return;
+  const t = REQUIRE_LOGIN ? await getToken() : '';
+  if(REQUIRE_LOGIN && !t){
+    if(!session){ dirty = false; saveLocal(); toast('ต้องเข้าสู่ระบบก่อนแก้ไข'); setTimeout(pull,0); return; }   // คนทั่วไปแก้ไม่ได้: ทิ้งสิ่งที่แก้ แล้วโหลดข้อมูลจริงกลับมา
+    dirty = true; saveLocal(); setNote(); if(!silent) toast('ติดต่อเซิร์ฟเวอร์ไม่ได้ (จะส่งให้อัตโนมัติเมื่อมีเน็ต)'); return;
+  }
   try{
-    const r = await fetch(endpoint(), {method:'PUT', headers:{'Content-Type':'application/json'}, body: JSON.stringify({entries:data, updated})});
+    const r = await fetch(endpoint()+(t?'?auth='+encodeURIComponent(t):''), {method:'PUT', headers:{'Content-Type':'application/json'}, body: JSON.stringify({entries:data, items, updated})});
+    if(r.status===401 || r.status===403){
+      dirty = false; saveLocal(); toast(REQUIRE_LOGIN ? 'ไม่มีสิทธิ์แก้ไข — ต้องเข้าสู่ระบบด้วยบัญชีเจ้าของ' : 'ฐานข้อมูลไม่อนุญาตให้เขียน — ตรวจสอบ Rules ใน Firebase'); setTimeout(pull,0); return;
+    }
     if(!r.ok) throw new Error(r.status);
     dirty = false; online = true;
-  }catch(e){ dirty = true; online = false; toast('บันทึกในเครื่องแล้ว แต่ยังส่งขึ้นเซิร์ฟเวอร์ไม่ได้'); }
-  setNote();
+  }catch(e){ dirty = true; online = false; if(!silent) toast('บันทึกในเครื่องแล้ว แต่ยังส่งขึ้นเซิร์ฟเวอร์ไม่ได้ (จะส่งให้อัตโนมัติเมื่อมีเน็ต)'); }
+  saveLocal(); setNote();
 }
-async function persist(){
-  updated = new Date().toISOString();
-  saveLocal();
-  await push();
-}
+async function persist(){ updated = new Date().toISOString(); dirty = true; saveLocal(); await push(); }
 
-const n = v => Number(v).toLocaleString('en-US');
-const total = q => ITEMS.reduce((s,i)=> s + (q[i.k]||0)*i.price, 0);
+
+// ===== เข้าสู่ระบบเจ้าของ (Firebase Auth ผ่าน REST) =====
+// false = ทุกคนที่มีลิงก์ดูและแก้ได้ (ไม่ต้องล็อกอิน) / true = เจ้าของแก้ได้คนเดียว ต้องล็อกอิน
+const REQUIRE_LOGIN = false;
+const API_KEY = 'AIzaSyAudoORx7IPhGkkKwRBY72Rizhcm8ek8RM';   // คีย์เว็บของ Firebase (เปิดเผยได้ตามปกติ)
+const AUTH_KEY = 'bill-pa-tiw-auth';
+let session = null;    // {refresh, email}
+let idToken = null, tokenExp = 0;
+
+function setOwner(on){
+  document.body.classList.toggle('viewer', !on);
+  document.getElementById('modeTag').textContent = on ? '✏️ แก้ไขได้' : '🔒 ดูอย่างเดียว';
+  document.getElementById('loginBtn').textContent = on ? '🚪 ออกจากระบบ' : '🔑 เข้าสู่ระบบ';
+}
+function saveSession(){ try{ session ? localStorage.setItem(AUTH_KEY, JSON.stringify(session)) : localStorage.removeItem(AUTH_KEY); }catch(e){} }
+async function refreshToken(){
+  if(!session) return null;
+  try{
+    const r = await fetch('https://securetoken.googleapis.com/v1/token?key='+API_KEY, {method:'POST', headers:{'Content-Type':'application/x-www-form-urlencoded'}, body:'grant_type=refresh_token&refresh_token='+encodeURIComponent(session.refresh)});
+    const j = await r.json();
+    if(!r.ok){ if(j.error && /TOKEN|USER|INVALID/.test(j.error.message||'')) { session=null; saveSession(); idToken=null; setOwner(false); } return null; }
+    idToken = j.id_token; tokenExp = Date.now() + (parseInt(j.expires_in)||3600)*1000;
+    if(j.refresh_token && j.refresh_token!==session.refresh){ session.refresh=j.refresh_token; saveSession(); }
+    return idToken;
+  }catch(e){ return null; }   // ออฟไลน์: คงสถานะไว้ก่อน
+}
+async function getToken(){
+  if(!session) return null;
+  if(idToken && Date.now() < tokenExp-60000) return idToken;
+  return await refreshToken();
+}
+async function authInit(){
+  if(!REQUIRE_LOGIN){ setOwner(true); document.getElementById('loginBtn').style.display='none'; document.getElementById('modeTag').style.display='none'; return; }
+  try{ session = JSON.parse(localStorage.getItem(AUTH_KEY)||'null'); }catch(e){ session=null; }
+  if(session){ setOwner(true); await refreshToken(); } else setOwner(false);
+}
+function authBtn(){ if(session){ if(confirm('ออกจากระบบ?')) logout(); } else openLogin(); }
+function openLogin(){ document.getElementById('loginOv').classList.add('open'); setTimeout(()=>document.getElementById('lg-email').focus(),100); }
+function closeLogin(){ document.getElementById('loginOv').classList.remove('open'); document.getElementById('lg-pw').value=''; }
+async function doLogin(){
+  const email = document.getElementById('lg-email').value.trim();
+  const pw = document.getElementById('lg-pw').value;
+  if(!email || !pw){ toast('ใส่อีเมลและรหัสผ่าน'); return; }
+  try{
+    const r = await fetch('https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key='+API_KEY, {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({email, password:pw, returnSecureToken:true})});
+    const j = await r.json();
+    if(!r.ok){ toast('อีเมลหรือรหัสผ่านไม่ถูกต้อง'); return; }
+    session = {refresh:j.refreshToken, email}; idToken = j.idToken; tokenExp = Date.now() + (parseInt(j.expiresIn)||3600)*1000;
+    saveSession(); setOwner(true); closeLogin(); toast('✓ เข้าสู่ระบบแล้ว'); pull();
+  }catch(e){ toast('เชื่อมต่อไม่ได้ ลองใหม่อีกครั้ง'); }
+}
+function logout(){ session=null; idToken=null; saveSession(); setOwner(false); cancelEdit(); toast('ออกจากระบบแล้ว'); }
+
+const n = v => Number(v).toLocaleString('en-US',{maximumFractionDigits:2});
+const lineTotal = l => (l.q||0)*(l.p||0);
+const entTotal = e => (e.lines||[]).reduce((s,l)=>s+lineTotal(l),0);
 const dFmt = iso => { const [y,m,d] = iso.split('-').map(Number); return d+' '+MON[m-1]+' '+String(y+543).slice(2); };
 function tFmt(iso){
   if(!iso) return '';
   const t = new Date(iso); if(isNaN(t)) return '';
   return t.getDate()+' '+MON[t.getMonth()]+' '+String(t.getFullYear()+543).slice(2)+' '+String(t.getHours()).padStart(2,'0')+':'+String(t.getMinutes()).padStart(2,'0')+' น.';
 }
+const esc = s => String(s).replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 function setNote(){
   const el = document.getElementById('saveNote');
   if(!DB_URL) el.textContent = 'ข้อมูลเก็บในเครื่องนี้ · ยังไม่ได้ต่อ Firebase';
   else el.textContent = online ? '☁ ซิงก์ Firebase แล้ว · ข้อมูลไม่หาย' : '⚠ ติดต่อเซิร์ฟเวอร์ไม่ได้ · เก็บในเครื่องไว้ก่อน';
 }
+function toast(m){ const t=document.getElementById('toast'); t.textContent=m; t.classList.add('show'); setTimeout(()=>t.classList.remove('show'),2000); }
 
-document.getElementById('priceTags').innerHTML = ITEMS.map(i=>`<span>${i.name} <b>${i.price}</b>฿</span>`).join('');
+// ===== ฟอร์ม =====
 document.getElementById('f-person').innerHTML = PEOPLE.map(p=>`<option>${p.n}</option>`).join('');
-document.getElementById('itemInputs').innerHTML = ITEMS.map(i=>
-  `<div class="fld"><label>${i.name} (${i.price}฿)</label><input type="number" inputmode="numeric" min="0" value="0" id="q-${i.k}"></div>`).join('');
 const now = new Date();
-document.getElementById('f-date').value = now.getFullYear()+'-'+String(now.getMonth()+1).padStart(2,'0')+'-'+String(now.getDate()).padStart(2,'0');
+function today(){ const t=new Date(); return t.getFullYear()+'-'+String(t.getMonth()+1).padStart(2,'0')+'-'+String(t.getDate()).padStart(2,'0'); }
+document.getElementById('f-date').value = today();
 document.getElementById('monthBadge').textContent = MON[now.getMonth()]+' '+(now.getFullYear()+543);
 
-function readQ(){ const q={}; ITEMS.forEach(i=> q[i.k]=Math.max(0,parseInt(document.getElementById('q-'+i.k).value)||0)); return q; }
-function toast(m){ const t=document.getElementById('toast'); t.textContent=m; t.classList.add('show'); setTimeout(()=>t.classList.remove('show'),1900); }
+function formList(){
+  const list = items.map(i=>({k:i.k,n:i.name,p:i.price}));
+  if(editId){
+    const e = data.find(x=>x.id===editId);
+    if(e) e.lines.forEach(l=>{ if(!list.some(x=>x.k===l.k)) list.push({k:l.k,n:l.n,p:l.p}); });
+  }
+  return list;
+}
+let lastSig = null;
+function renderForm(){
+  lastSig = JSON.stringify(formList());
+  document.getElementById('itemInputs').innerHTML = formList().map(i=>
+    `<div class="fld"><label>${esc(i.n)} (${n(i.p)}฿)</label>
+      <div class="qty"><button class="step" type="button" onclick="step('${i.k}',-1)">−</button>
+      <input type="number" inputmode="decimal" min="0" step="any" id="q-${i.k}" value="${formVals[i.k]||0}" oninput="setQ('${i.k}',this.value)" onfocus="this.select()">
+      <button class="step" type="button" onclick="step('${i.k}',1)">＋</button></div></div>`).join('');
+}
+function setQ(k,v){ formVals[k] = Math.max(0, parseFloat(v)||0); }
+function step(k,d){ const v = Math.max(0, Math.round(((formVals[k]||0)+d)*100)/100); formVals[k]=v; const el=document.getElementById('q-'+k); if(el) el.value=v; }
+function clearForm(){ formVals = {}; renderForm(); }
 
-async function addEntry(){
-  const date = document.getElementById('f-date').value;
-  const person = document.getElementById('f-person').value;
-  const q = readQ();
-  if(!date){ toast('กรุณาเลือกวันที่'); return; }
-  if(total(q)===0){ toast('ยังไม่ได้ใส่จำนวน'); return; }
-  await pull();
-  const stamp = new Date().toISOString();
-  const ex = data.find(e=>e.date===date && e.person===person);
-  if(ex){ ITEMS.forEach(i=> ex.q[i.k]=(ex.q[i.k]||0)+q[i.k]); ex.saved = stamp; }
-  else data.push({id:Date.now(),date,person,q,saved:stamp});
-  await persist(); ITEMS.forEach(i=>document.getElementById('q-'+i.k).value=0); render();
-  toast('✓ บันทึกให้'+person+' แล้ว');
+function gotoForm(){
+  document.getElementById('formBox').scrollIntoView({behavior:'smooth',block:'start'});
+  const first = formList()[0]; if(first) setTimeout(()=>{ const el=document.getElementById('q-'+first.k); if(el) el.focus(); },350);
+}
+function startEdit(id){
+  const e = data.find(x=>x.id===id); if(!e) return;
+  editId = id; formVals = {};
+  e.lines.forEach(l=>formVals[l.k]=l.q);
+  document.getElementById('f-date').value = e.date;
+  document.getElementById('f-person').value = e.person;
+  document.getElementById('formBox').classList.add('editing');
+  document.getElementById('formTitle').textContent = '✏️ แก้ไขรายการ';
+  document.getElementById('editInfo').textContent = 'กำลังแก้ไขบิลของ '+e.person+' · '+dFmt(e.date);
+  document.getElementById('saveBtn').textContent = '💾 บันทึกการแก้ไข';
+  document.getElementById('copyBtn').style.display = '';
+  renderForm();
+  document.getElementById('formBox').scrollIntoView({behavior:'smooth',block:'start'});
+}
+function cancelEdit(){
+  editId = null; formVals = {};
+  document.getElementById('formBox').classList.remove('editing');
+  document.getElementById('formTitle').textContent = '＋ เพิ่มรายการ';
+  document.getElementById('saveBtn').textContent = '💾 บันทึก';
+  document.getElementById('f-date').value = today();
+  document.getElementById('copyBtn').style.display = 'none';
+  renderForm();
 }
 
+async function saveEntry(asNew){
+  const date = document.getElementById('f-date').value;
+  const person = document.getElementById('f-person').value;
+  if(!date){ toast('กรุณาเลือกวันที่'); return; }
+  const list = formList().filter(i=>(formVals[i.k]||0)>0);
+  if(!list.length){ toast(editId ? 'ใส่จำนวนอย่างน้อย 1 อย่าง หรือกดลบบิลนี้' : 'ยังไม่ได้ใส่จำนวน'); return; }
+  const wasEdit = editId && !asNew ? editId : null;
+  if(wasEdit){
+    const cur = data.find(x=>x.id===wasEdit);
+    if(cur && (cur.date!==date || cur.person!==person)){
+      if(!confirm('ย้ายบิลนี้จาก '+cur.person+' · '+dFmt(cur.date)+'\nไปเป็น '+person+' · '+dFmt(date)+' ?\n\n(ถ้าอยากเก็บบิลเดิมไว้ กด ยกเลิก แล้วเลือก “บันทึกเป็นบิลใหม่”)')) return;
+    }
+  }
+  await pull();
+  const stamp = new Date().toISOString();
+  if(wasEdit){
+    const e = data.find(x=>x.id===wasEdit);
+    if(!e){ toast('ไม่พบบิลนี้แล้ว (อาจถูกลบจากเครื่องอื่น)'); cancelEdit(); render(); return; }
+    e.lines = list.map(i=>{ const old = e.lines.find(l=>l.k===i.k); return {k:i.k, n: old?old.n:i.n, p: old?old.p:i.p, q: formVals[i.k]}; });
+    e.date = date; e.person = person; e.saved = stamp;
+  } else {
+    let ex = data.find(e=>e.date===date && e.person===person);
+    if(!ex){ ex = {id:Date.now(),date,person,saved:stamp,lines:[]}; data.push(ex); }
+    list.forEach(i=>{
+      const l = ex.lines.find(l=>l.k===i.k && l.p===i.p);
+      if(l) l.q = Math.round((l.q+formVals[i.k])*100)/100; else ex.lines.push({k:i.k,n:i.n,p:i.p,q:formVals[i.k]});
+    });
+    ex.saved = stamp;
+  }
+  await persist();
+  if(editId){ cancelEdit(); } else { clearForm(); }   // เพิ่มใหม่: คงวันที่/ชื่อที่เลือกไว้ จะได้กรอกต่อได้
+  render();
+  toast(wasEdit ? '✓ แก้ไขแล้ว' : '✓ บันทึกให้'+person+' แล้ว');
+}
+async function del(id){
+  if(!confirm('ลบบิลนี้?')) return;
+  await pull(); data = data.filter(e=>e.id!==id);
+  if(editId===id) cancelEdit();
+  await persist(); render(); toast('ลบแล้ว');
+}
+async function resetAll(){ if(!confirm('ล้างข้อมูลบิลทั้งหมดใช่ไหม? กู้คืนไม่ได้')) return; data=[]; cancelEdit(); await persist(); render(); }
+
+// ===== จัดการสินค้า =====
+function renderPrices(){
+  document.getElementById('priceTags').innerHTML = items.map(i=>`<span>${esc(i.name)} <b>${n(i.price)}</b>฿</span>`).join('');
+  if(JSON.stringify(formList())!==lastSig) renderForm();
+}
+function renderMgr(){
+  document.getElementById('mgrList').innerHTML = items.map(i=>
+    `<div class="mrow"><input value="${esc(i.name)}" onchange="editItem('${i.k}','name',this.value)">
+      <input class="p" type="number" inputmode="decimal" min="0" value="${i.price}" onchange="editItem('${i.k}','price',this.value)">
+      <button class="x" onclick="delItem('${i.k}')" aria-label="ลบสินค้า">✕</button></div>`).join('') || '<div class="empty">ยังไม่มีสินค้า</div>';
+}
+async function addItem(){
+  const name = document.getElementById('ni-name').value.trim();
+  const price = parseFloat(document.getElementById('ni-price').value);
+  if(!name || isNaN(price) || price<0){ toast('ใส่ชื่อและราคาให้ครบ'); return; }
+  await pull();
+  items.push({k:'i'+Date.now(), name, price});
+  await persist();
+  document.getElementById('ni-name').value=''; document.getElementById('ni-price').value='';
+  renderMgr(); renderPrices(); toast('✓ เพิ่มสินค้าแล้ว');
+}
+async function editItem(k, field, v){
+  await pull();
+  const it = items.find(i=>i.k===k); if(!it) return;
+  if(field==='name'){ const t=v.trim(); if(!t){ renderMgr(); return; } it.name=t; }
+  else { const p=parseFloat(v); if(isNaN(p)||p<0){ renderMgr(); return; } it.price=p; }
+  await persist(); renderMgr(); renderPrices(); toast('✓ แก้ไขสินค้าแล้ว');
+}
+async function delItem(k){
+  const it = items.find(i=>i.k===k); if(!it) return;
+  if(!confirm('ลบ "'+it.name+'" ออกจากรายการสินค้า? (บิลเก่าที่เคยบันทึกยังอยู่ครบ)')) return;
+  await pull(); items = items.filter(i=>i.k!==k);
+  await persist(); renderMgr(); renderPrices(); toast('ลบสินค้าแล้ว');
+}
+
+// ===== สำรอง/นำเข้า =====
 function exportData(){
-  const blob = new Blob([JSON.stringify({entries:data, updated},null,1)], {type:'application/json'});
-  const a = document.createElement('a');
-  const d = new Date();
+  const blob = new Blob([JSON.stringify({entries:data, items, updated},null,1)], {type:'application/json'});
+  const a = document.createElement('a'); const d = new Date();
   a.href = URL.createObjectURL(blob);
   a.download = 'bill-pa-tiw-'+d.getFullYear()+String(d.getMonth()+1).padStart(2,'0')+String(d.getDate()).padStart(2,'0')+'.json';
   a.click(); setTimeout(()=>URL.revokeObjectURL(a.href),2000);
@@ -255,39 +504,39 @@ function importData(inp){
       const j = JSON.parse(r.result);
       if(!Array.isArray(j.entries)) throw 0;
       if(!confirm('นำเข้าข้อมูลนี้? ข้อมูลปัจจุบันจะถูกแทนที่')) return;
-      data = j.entries; persist().then(render); toast('✓ นำเข้าข้อมูลแล้ว');
+      data = norm(j.entries); if(Array.isArray(j.items)&&j.items.length) items = j.items;
+      persist().then(()=>{ render(); renderPrices(); renderMgr(); }); toast('✓ นำเข้าข้อมูลแล้ว');
     }catch(e){ toast('ไฟล์ไม่ถูกต้อง'); }
     inp.value='';
   };
   r.readAsText(f);
 }
-async function del(id){ if(!confirm('ลบรายการนี้?')) return; await pull(); data = data.filter(e=>e.id!==id); await persist(); render(); }
-async function resetAll(){ if(!confirm('ล้างข้อมูลทั้งหมดใช่ไหม? กู้คืนไม่ได้')) return; data=[]; await persist(); render(); }
 
+// ===== แสดงผล =====
+function agg(es){ const m = new Map(); es.forEach(e=>e.lines.forEach(l=>{ const o=m.get(l.k)||{n:l.n,q:0}; o.q+=l.q; m.set(l.k,o); })); return [...m.values()]; }
 function render(){
-  let grand=0, tq={bearn:0,liter:0,round:0,soda:0}, days=new Set();
+  let grand=0, days=new Set();
   document.getElementById('cols').innerHTML = PEOPLE.map(p=>{
-    const es = data.filter(e=>e.person===p.n).sort((a,b)=>a.date<b.date?-1:1);
-    let pt=0, pq={bearn:0,liter:0,round:0,soda:0};
+    const es = data.filter(e=>e.person===p.n).sort((a,b)=>a.date<b.date?-1:(a.date>b.date?1:a.id-b.id));
+    let pt=0;
     const body = es.length ? es.map(e=>{
-      const sub = total(e.q); pt+=sub; days.add(e.date);
-      ITEMS.forEach(i=>{ pq[i.k]+=e.q[i.k]||0; tq[i.k]+=e.q[i.k]||0; });
-      const lines = ITEMS.filter(i=>e.q[i.k]>0).map(i=>
-        `<div class="ln"><span>${i.name} ${e.q[i.k]} × ${i.price}</span><span>${n(e.q[i.k]*i.price)}</span></div>`).join('');
+      const sub = entTotal(e); pt+=sub; days.add(e.date);
+      const lines = e.lines.map(l=>`<div class="ln"><span>${esc(l.n)} ${n(l.q)} × ${n(l.p)}</span><span>${n(lineTotal(l))}</span></div>`).join('');
       const st = e.saved ? `<span class="s">บันทึก ${tFmt(e.saved)}</span>` : '';
-      return `<div class="day"><div class="day-h"><span class="d">📅 ${dFmt(e.date)}${st}</span><button class="x" onclick="del(${e.id})" aria-label="ลบ">✕</button></div>${lines}<div class="ln sum"><span>รวมวันนี้</span><span>${n(sub)}</span></div></div>`;
+      return `<div class="day"><div class="day-h"><span class="d">📅 ${dFmt(e.date)}${st}</span><span class="acts owner-only"><button class="x ed" onclick="startEdit(${e.id})" aria-label="แก้ไข">✎</button><button class="x" onclick="del(${e.id})" aria-label="ลบ">✕</button></span></div>${lines}<div class="ln sum"><span>รวมวันนี้</span><span>${n(sub)}</span></div></div>`;
     }).join('') : '<div class="empty">ยังไม่มีรายการ</div>';
     grand+=pt;
-    const foot = ITEMS.map(i=>`<div><span>${i.name}</span><b>${pq[i.k]}</b></div>`).join('');
+    const foot = agg(es).map(a=>`<div><span>${esc(a.n)}</span><b>${n(a.q)}</b></div>`).join('') || '<div><span>—</span></div>';
     return `<section class="col" style="--pc:${p.c}"><div class="col-h"><span class="av">${p.e}</span><h3>${p.n}</h3><span class="t">${n(pt)} ฿</span></div><div class="col-b">${body}</div><div class="col-f">${foot}</div></section>`;
   }).join('');
+  const all = agg(data);
   document.getElementById('s-total').textContent = n(grand);
-  document.getElementById('s-qty').textContent = tq.bearn+tq.liter+tq.round;
-  document.getElementById('s-detail').textContent = `แบร์น ${tq.bearn} · ลิตร ${tq.liter} · กลม ${tq.round} · โซดา ${tq.soda}`;
+  document.getElementById('s-qty').textContent = n(all.reduce((s,a)=>s+a.q,0));
+  document.getElementById('s-detail').textContent = all.length ? all.map(a=>a.n+' '+n(a.q)).join(' · ') : '—';
   document.getElementById('s-days').textContent = days.size;
   document.getElementById('s-upd').textContent = updated ? 'อัปเดตล่าสุด '+tFmt(updated) : 'ยังไม่มีการบันทึก';
 }
-render(); setNote(); pull();
+render(); renderPrices(); renderMgr(); setNote(); authInit().then(pull);
 setInterval(pull, 20000);
 document.addEventListener('visibilitychange', ()=>{ if(!document.hidden) pull(); });
 if('serviceWorker' in navigator){ window.addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{})); }

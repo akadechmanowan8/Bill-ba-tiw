@@ -1,6 +1,7 @@
-# ต่อ Firebase ให้ข้อมูลถาวร
+# ตั้งค่า Firebase
 
-1. Firebase Console → Realtime Database → แท็บ **Rules** → วางโค้ดนี้ แล้วกด **Publish**
+## โหมดปัจจุบัน: ทุกคนที่มีลิงก์ ดูและแก้ไขได้ (ไม่ต้องล็อกอิน)
+Realtime Database → แท็บ Rules → วางโค้ดนี้ แล้วกด Publish
 
 {
   "rules": {
@@ -13,5 +14,8 @@
   }
 }
 
-2. แท็บ **Data** → คัดลอก URL ที่อยู่ด้านบน (ขึ้นต้น https:// ลงท้าย .firebasedatabase.app)
-3. เปิด index.html → หาบรรทัด `const DB_URL = '';` → วาง URL ในเครื่องหมายคำพูด → บันทึก แล้วอัปขึ้น GitHub
+## ถ้าภายหลังอยากให้เจ้าของแก้ได้คนเดียว
+1. ใน index.html เปลี่ยน `const REQUIRE_LOGIN = false;` เป็น `true`
+2. Authentication → เปิด Email/Password → Add user (อีเมล+รหัสผ่านของคุณ) → คัดลอก User UID
+3. แก้ Rules ตรง ".write" ของ bill_pa_tiw เป็น:
+   "auth != null && auth.uid === 'UID-ของคุณ'"
