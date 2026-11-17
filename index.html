@@ -162,9 +162,40 @@ let updated = null;  // เวลาที่อัปเดตล่าสุ�
 try { const r = JSON.parse(localStorage.getItem(KEY) || 'null'); if (r) { data = r.entries || []; updated = r.updated || null; } } catch(e){}
 function saveLocal(){ try{ localStorage.setItem(KEY, JSON.stringify({entries:data, updated})); }catch(e){} }
 
-function persist(){
+// ===== Firebase Realtime Database (REST) =====
+// ใส่ URL ฐานข้อมูลของคุณตรงนี้ เช่น 'https://ชื่อโปรเจกต์-default-rtdb.asia-southeast1.firebasedatabase.app'
+const DB_URL = 'https://bill-ba-tiw-default-rtdb.asia-southeast1.firebasedatabase.app';
+const NODE = 'bill_pa_tiw';
+let dirty = false, online = false;
+const endpoint = () => DB_URL.replace(/\/+$/,'') + '/' + NODE + '.json';
+
+async function pull(){
+  if(!DB_URL) return;
+  try{
+    if(dirty){ await push(); return; }
+    const r = await fetch(endpoint(), {cache:'no-store'});
+    if(!r.ok) throw new Error(r.status);
+    const j = await r.json();
+    online = true;
+    if(j && Array.isArray(j.entries)){ data = j.entries; updated = j.updated || null; saveLocal(); render(); }
+    else if(j && j.updated && !j.entries){ data = []; updated = j.updated; saveLocal(); render(); }
+    else if(data.length){ await push(); }
+  }catch(e){ online = false; }
+  setNote();
+}
+async function push(){
+  if(!DB_URL) return;
+  try{
+    const r = await fetch(endpoint(), {method:'PUT', headers:{'Content-Type':'application/json'}, body: JSON.stringify({entries:data, updated})});
+    if(!r.ok) throw new Error(r.status);
+    dirty = false; online = true;
+  }catch(e){ dirty = true; online = false; toast('บันทึกในเครื่องแล้ว แต่ยังส่งขึ้นเซิร์ฟเวอร์ไม่ได้'); }
+  setNote();
+}
+async function persist(){
   updated = new Date().toISOString();
   saveLocal();
+  await push();
 }
 
 const n = v => Number(v).toLocaleString('en-US');
@@ -176,7 +207,9 @@ function tFmt(iso){
   return t.getDate()+' '+MON[t.getMonth()]+' '+String(t.getFullYear()+543).slice(2)+' '+String(t.getHours()).padStart(2,'0')+':'+String(t.getMinutes()).padStart(2,'0')+' น.';
 }
 function setNote(){
-  document.getElementById('saveNote').textContent = 'ข้อมูลเก็บในเครื่องนี้ · ควรกด “สำรองข้อมูล” เป็นระยะ';
+  const el = document.getElementById('saveNote');
+  if(!DB_URL) el.textContent = 'ข้อมูลเก็บในเครื่องนี้ · ยังไม่ได้ต่อ Firebase';
+  else el.textContent = online ? '☁ ซิงก์ Firebase แล้ว · ข้อมูลไม่หาย' : '⚠ ติดต่อเซิร์ฟเวอร์ไม่ได้ · เก็บในเครื่องไว้ก่อน';
 }
 
 document.getElementById('priceTags').innerHTML = ITEMS.map(i=>`<span>${i.name} <b>${i.price}</b>฿</span>`).join('');
@@ -190,17 +223,18 @@ document.getElementById('monthBadge').textContent = MON[now.getMonth()]+' '+(now
 function readQ(){ const q={}; ITEMS.forEach(i=> q[i.k]=Math.max(0,parseInt(document.getElementById('q-'+i.k).value)||0)); return q; }
 function toast(m){ const t=document.getElementById('toast'); t.textContent=m; t.classList.add('show'); setTimeout(()=>t.classList.remove('show'),1900); }
 
-function addEntry(){
+async function addEntry(){
   const date = document.getElementById('f-date').value;
   const person = document.getElementById('f-person').value;
   const q = readQ();
   if(!date){ toast('กรุณาเลือกวันที่'); return; }
   if(total(q)===0){ toast('ยังไม่ได้ใส่จำนวน'); return; }
+  await pull();
   const stamp = new Date().toISOString();
   const ex = data.find(e=>e.date===date && e.person===person);
   if(ex){ ITEMS.forEach(i=> ex.q[i.k]=(ex.q[i.k]||0)+q[i.k]); ex.saved = stamp; }
   else data.push({id:Date.now(),date,person,q,saved:stamp});
-  persist(); ITEMS.forEach(i=>document.getElementById('q-'+i.k).value=0); render();
+  await persist(); ITEMS.forEach(i=>document.getElementById('q-'+i.k).value=0); render();
   toast('✓ บันทึกให้'+person+' แล้ว');
 }
 
@@ -221,14 +255,14 @@ function importData(inp){
       const j = JSON.parse(r.result);
       if(!Array.isArray(j.entries)) throw 0;
       if(!confirm('นำเข้าข้อมูลนี้? ข้อมูลปัจจุบันจะถูกแทนที่')) return;
-      data = j.entries; persist(); render(); toast('✓ นำเข้าข้อมูลแล้ว');
+      data = j.entries; persist().then(render); toast('✓ นำเข้าข้อมูลแล้ว');
     }catch(e){ toast('ไฟล์ไม่ถูกต้อง'); }
     inp.value='';
   };
   r.readAsText(f);
 }
-function del(id){ if(!confirm('ลบรายการนี้?')) return; data = data.filter(e=>e.id!==id); persist(); render(); }
-function resetAll(){ if(!confirm('ล้างข้อมูลทั้งหมดใช่ไหม? กู้คืนไม่ได้')) return; data=[]; persist(); render(); }
+async function del(id){ if(!confirm('ลบรายการนี้?')) return; await pull(); data = data.filter(e=>e.id!==id); await persist(); render(); }
+async function resetAll(){ if(!confirm('ล้างข้อมูลทั้งหมดใช่ไหม? กู้คืนไม่ได้')) return; data=[]; await persist(); render(); }
 
 function render(){
   let grand=0, tq={bearn:0,liter:0,round:0,soda:0}, days=new Set();
@@ -253,7 +287,9 @@ function render(){
   document.getElementById('s-days').textContent = days.size;
   document.getElementById('s-upd').textContent = updated ? 'อัปเดตล่าสุด '+tFmt(updated) : 'ยังไม่มีการบันทึก';
 }
-render(); setNote();
+render(); setNote(); pull();
+setInterval(pull, 20000);
+document.addEventListener('visibilitychange', ()=>{ if(!document.hidden) pull(); });
 if('serviceWorker' in navigator){ window.addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{})); }
 </script>
 </body>
